@@ -5,6 +5,7 @@ We consider the up votes to be a representative of the user's engagement with ot
 type of user, time of day, etc. contribute to how popular a post will get. To this end, we intend to utilize a linear regression model, 
 as well as decision tree model to distinguish between the quality of their predictions and the internal data processing and manipulation by each model.
 
-Jonathan Andrei
-Andrew Ha
-Inés Gonzalez Pepe 
+# Team
+Jonathan Andrei <br />
+Andrew Ha <br />
+Inés Gonzalez Pepe <br />
