@@ -1,18 +1,6 @@
-# Soen-471-Project
+### Abstract
 
-TODO with group before February 5th: write 100-word abstract of our planned project.
-
-Discussed so far:
-
-Based on the context of what was written and on the days as well. Correlate that with the number of reactions.
-
-Plot the long/latitude and classify the coordinates based on how close they are to each other. Then cross reference the coordinance
-of actual raids that happen to check if the user's coordinates matches that to see if they were actually at that raid.
-The month/day/hour is there as well, so can use that to check the time they were there.
-
-Analyzing the length of the video to compare activity.
-Maybe third party tool to find exact video from .json file that can tell us the title to give us context on what it's about.
-
-Another idea. Figure out which products got marked up on amazon because of Covid.
-
-
+The aim of our project is to be able to predict the number of up-votes a user has on a post, based off the Parler messaging app. 
+We consider the up votes to be a representative of the user's engagement with others. We aim to determine which factors, such as keywords, 
+type of user, time of day, etc. contribute to how popular a post will get. To this end, we intend to utilize a linear regression model, 
+as well as decision tree model to distinguish between the quality of their predictions and the internal data processing and manipulation by each model.
