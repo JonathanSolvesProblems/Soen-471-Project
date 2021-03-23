@@ -1,2 +1,3 @@
 parler-data/*
 __pycache__/
+parler-data.ndjson
