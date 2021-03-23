@@ -12,11 +12,13 @@ outputJson = 'preprocessed.csv'
 def main():
     print("hello world!")
 
+    # exception for testing, move to more appropriate place later.
     try:
         preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
         preprocessor.preprocessJson(parlerDataDirectory)
+        preprocessor.createResultDirectory()
     except:
-        sys.exit("Error: Parler data not found.")
+        sys.exit("Error: Parler data not found or unable to create results.")
 
 
 def preprocess():

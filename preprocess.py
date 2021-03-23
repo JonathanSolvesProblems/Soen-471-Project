@@ -6,6 +6,9 @@ from pyspark.sql import SparkSession
 # from pyspark.sql.functions import desc
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
+import sys
+import os
+from pathlib import Path
 
 class Preprocess(object):
     def __init__(self, inputJsonDirectory, outputFileDirectory, outputJson):
@@ -35,7 +38,6 @@ class Preprocess(object):
 
         # Here we start dropping columns
         
-
         
 
         return 0
@@ -66,5 +68,12 @@ class Preprocess(object):
                                  if type(field.dataType) == ArrayType or  type(field.dataType) == StructType])
         return df
 
-    def createResultDirectory():
-        return 0
+    def createResultDirectory(self):
+        # TODO: add outputFileDirectory, was getting weird error with it
+        # output_path = self.outputFileDirectory + self.outputJson
+        try:
+            f = open(self.outputJson, "w")
+            f.write("TODO: Add Results to CSV")
+            f.close()
+        except:
+            sys.exit("Error: Unable to create file.")
