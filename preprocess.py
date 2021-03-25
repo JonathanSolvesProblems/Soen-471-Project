@@ -42,7 +42,8 @@ class Preprocess(object):
         # Here we start dropping columns
         
         # remove -1 comments
-        df = df.filter(df.comments == -1)
+        df = df.filter(df.comments != -1)
+
 
         # testing
         # df.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("mydata.csv")
