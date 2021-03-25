@@ -37,12 +37,15 @@ class Preprocess(object):
         
         df = self.flatten(df)
 
-        # df.printSchema()
-
         # Here we start dropping columns
         
         # remove -1 comments
         df = df.filter(df.comments != -1)
+
+        # remove username
+        df = df.drop('username')
+
+        df.printSchema()
 
 
         # testing
