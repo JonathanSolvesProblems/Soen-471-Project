@@ -1,3 +1,5 @@
 parler-data/*
 __pycache__/
 parler-data.ndjson
+parler_small.ndjson
+backup_parler_small.ndjson

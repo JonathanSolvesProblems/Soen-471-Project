@@ -32,14 +32,21 @@ class Preprocess(object):
         print(inputJsonDirectory)
         df = self.spark.read.json(inputJsonDirectory)
         print(df.count())
+
         # df.show()
+        
         df = self.flatten(df)
-        df.printSchema()
+
+        # df.printSchema()
 
         # Here we start dropping columns
         
-        
+        # remove -1 comments
+        df = df.filter(df.comments == -1)
 
+        # testing
+        # df.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("mydata.csv")
+        
         return 0
 
     def flatten(self, df):

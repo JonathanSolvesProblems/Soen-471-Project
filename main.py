@@ -4,7 +4,7 @@ import sys
 from preprocess import Preprocess
 
 # Constants
-parlerDataDirectory = './parler-data.ndjson/'
+parlerDataDirectory = './parler_small.ndjson/'
 outputFileDirectory = './preprocessed/'
 outputJson = 'preprocessed.csv'
 
@@ -16,7 +16,7 @@ def main():
     try:
         preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
         preprocessor.preprocessJson(parlerDataDirectory)
-        preprocessor.createResultDirectory()
+        # preprocessor.createResultDirectory()
     except:
         sys.exit("Error: Parler data not found or unable to create results.")
 
