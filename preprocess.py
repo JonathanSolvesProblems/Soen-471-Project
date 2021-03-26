@@ -2,6 +2,7 @@ from pyspark.rdd import RDD
 from pyspark.sql import Row
 from pyspark.sql import DataFrame
 from pyspark.sql import SparkSession
+from pyspark import SparkContext, SparkConf
 # from pyspark.sql.functions import lit
 # from pyspark.sql.functions import desc
 from pyspark.sql.types import *
@@ -9,6 +10,7 @@ from pyspark.sql.functions import *
 import sys
 import os
 from pathlib import Path
+
 
 class Preprocess(object):
     def __init__(self, inputJsonDirectory, outputFileDirectory, outputJson):
@@ -18,11 +20,14 @@ class Preprocess(object):
         self.spark = self.init_spark()
 
     def init_spark(self):
+        
         spark = SparkSession \
             .builder \
             .appName("Python Spark SQL basic example") \
             .config("spark.some.config.option", "some-value") \
             .getOrCreate()
+        #conf = SparkConf().setAppName("test").setMaster("local")
+        #sc = SparkContext(conf=conf)
         return spark
 
     def getSpark(self):
@@ -45,7 +50,10 @@ class Preprocess(object):
         # remove username
         df = df.drop('username')
 
-        df.write.csv(self.outputJson)
+        # df.write.format("csv").save(self.outputJson)
+        
+        # paralizing later, just for testing
+        df.toPandas().to_csv(self.outputJson)
 
         # df.printSchema()
 
