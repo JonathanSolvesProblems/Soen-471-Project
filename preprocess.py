@@ -10,6 +10,7 @@ from pyspark.sql.functions import *
 import sys
 import os
 from pathlib import Path
+from pyspark.sql.functions import col, when
 
 
 class Preprocess(object):
@@ -34,6 +35,7 @@ class Preprocess(object):
         return self.spark
 
     def preprocessJson(self, inputJsonDirectory):
+
         print(inputJsonDirectory)
         df = self.spark.read.json(inputJsonDirectory)
         print(df.count())
@@ -52,9 +54,14 @@ class Preprocess(object):
         'urls_short', 'urls_state', 'createdAt', 'urls_long', 'urls_metadata_length']
 
         df = df.drop(*drop_columns)
+
+
+        df = df.withColumn("urls_domain", lambda x : when(col(x) != "", col(x)).otherwise("No link"))
         
         
         # df.write.format("csv").save(self.outputJson)
+
+        
         
         # paralizing later, just for testing
         df.toPandas().to_csv(self.outputJson)
