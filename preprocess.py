@@ -45,7 +45,9 @@ class Preprocess(object):
         # remove username
         df = df.drop('username')
 
-        df.printSchema()
+        df.write.csv(self.outputJson)
+
+        # df.printSchema()
 
 
         # testing
