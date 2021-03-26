@@ -47,9 +47,13 @@ class Preprocess(object):
         # remove -1 comments
         df = df.filter(df.comments != -1)
 
-        # remove username
-        df = df.drop('username')
+        # dropping columns
+        drop_columns = ['username', 'bodywithurls', 'depth', 'depthRaw', 'lastseents', 'links', 'media', 'parent', 'posts', 'preview', 'state', 'urls_createdAt', 'urls_id', 'urls_modified',
+        'urls_short', 'urls_state', 'createdAt', 'urls_long', 'urls_metadata_length']
 
+        df = df.drop(*drop_columns)
+        
+        
         # df.write.format("csv").save(self.outputJson)
         
         # paralizing later, just for testing
