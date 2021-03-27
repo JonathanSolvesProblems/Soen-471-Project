@@ -56,10 +56,10 @@ class Preprocess(object):
         df = df.drop(*drop_columns)
 
 
-        df = df.withColumn("urls_domain", lambda x : when(col(x) != "", col(x)).otherwise("No link"))
+        #df = df.withColumn("urls_domain", lambda x : when(col(x) != "", col(x)).otherwise("No link"))
         
         
-        #df.write.format("csv").save(self.outputJson)
+        df.write.format("csv").save(self.outputJson, header = True)
 
         
         # paralizing later, just for testing
