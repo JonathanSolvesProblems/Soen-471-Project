@@ -55,22 +55,17 @@ class Preprocess(object):
 
         df = df.drop(*drop_columns)
 
-
-        #df = df.withColumn("urls_domain", lambda x : when(col(x) != "", col(x)).otherwise("No link"))
+        df = df.withColumn("urls_domain", when(col("urls_domain") != "", col("urls_domain")).otherwise("No link"))
         
         
         df.write.format("csv").save(self.outputJson, header = True)
 
         
-        # paralizing later, just for testing
+        # testing
         # df.toPandas().to_csv(self.outputJson)
 
         # df.printSchema()
 
-
-        # testing
-        # df.repartition(1).write.format("com.databricks.spark.csv").option("header", "true").save("mydata.csv")
-        
         return 0
 
     def flatten(self, df):

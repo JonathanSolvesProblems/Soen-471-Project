@@ -6,7 +6,7 @@ from preprocess import Preprocess
 # Constants
 parlerDataDirectory = './parler_small.ndjson/'
 outputFileDirectory = './preprocessed/'
-outputJson = './parlers-data2/'
+outputJson = './parlers-data/'
 
 
 def main():
