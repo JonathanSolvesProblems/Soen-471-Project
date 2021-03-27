@@ -48,12 +48,16 @@ class Preprocess(object):
         df = df.filter(df.comments != -1)
 
         # remove username
-        df = df.drop('username')
+        # df = df.drop('username')
+        drop_columns = ['username', 'bodywithurls', 'depth', 'depthRaw', 'lastseents', 'links', 'media', 'parent', 'posts', 'preview', 'state', 'urls_createdAt', 'urls_id', 'urls_modified',
+        'urls_short', 'urls_state']
 
-        # df.write.format("csv").save(self.outputJson)
+        df = df.drop(*drop_columns)
+
+        df.write.format("csv").save(self.outputJson)
         
         # paralizing later, just for testing
-        df.toPandas().to_csv(self.outputJson)
+        # df.toPandas().to_csv(self.outputJson)
 
         # df.printSchema()
 
