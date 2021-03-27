@@ -1,6 +1,7 @@
 parler-data/*
 __pycache__/
 parler-data.ndjson
-parler_small.ndjson
 backup_parler_small.ndjson
 .ipynb_checkpoints/*
+./Miniconda3-latest-Linux-x86_64.sh/
+./preprocess.pyc/
