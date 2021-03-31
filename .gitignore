@@ -5,3 +5,4 @@ backup_parler_small.ndjson
 .ipynb_checkpoints/*
 Miniconda3-latest-Linux-x86_64.sh
 preprocess.pyc
+parlers-data/
