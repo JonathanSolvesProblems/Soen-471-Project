@@ -11,11 +11,9 @@ import sys
 import os
 from pathlib import Path
 from pyspark.sql.functions import col, when
-from pathlib import Path
+import matplotlib.pyplot as plt
 import shutil
-
-
-
+from word2Vec import *
 
 class Preprocess(object):
     def __init__(self, inputJsonDirectory, outputFileDirectory, outputJson):
@@ -45,6 +43,7 @@ class Preprocess(object):
 
     def getSpark(self):
         return self.spark
+
 
     def preprocessJson(self, inputJsonDirectory):
 
@@ -77,6 +76,10 @@ class Preprocess(object):
             shutil.rmtree(dirpath)
         
         df.write.format("csv").save(self.outputJson, header = True)
+
+        word2Vec(df)
+
+
         return 0
 
     def flatten(self, df):
@@ -105,12 +108,3 @@ class Preprocess(object):
                                  if type(field.dataType) == ArrayType or  type(field.dataType) == StructType])
         return df
 
-    def createResultDirectory(self):
-        # TODO: add outputFileDirectory, was getting weird error with it
-        # output_path = self.outputFileDirectory + self.outputJson
-        try:
-            f = open(self.outputJson, "w")
-            f.write("TODO: Add Results to CSV")
-            f.close()
-        except:
-            sys.exit("Error: Unable to create file.")
