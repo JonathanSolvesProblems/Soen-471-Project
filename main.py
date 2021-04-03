@@ -2,6 +2,7 @@
 import re
 import sys
 from preprocess import Preprocess
+from plot import plotUpvotes
 
 # Constants
 parlerDataDirectory = './parler_small.ndjson/'
@@ -10,12 +11,22 @@ outputJson = './parlers-data/'
 
 
 def main():
-    print("hello world!")
-
+    printArt = ''' _______________
+ < Hello, Tristan! >
+ ---------------
+            \   ^__^
+             \  (oo)\_______
+                (__)\       )\/\\
+                    ||----w |
+                    ||     ||'''
+    print(printArt)
+    
+    upvoteBins = 4
     # exception for testing, move to more appropriate place later.
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
-    # preprocessor.createResultDirectory()
+    plotUpvotes(preprocessor.getPreprocessedData(), upvoteBins)
+    plotUpvotes(preprocessor.getProcessedData(), upvoteBins)
 
 
 def preprocess():
