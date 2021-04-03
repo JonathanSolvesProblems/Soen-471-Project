@@ -11,8 +11,15 @@ import sys
 import os
 from pathlib import Path
 from pyspark.sql.functions import col, when
+<<<<<<< HEAD
 import matplotlib.pyplot as plt
 from pyspark.mllib.feature import HashingTF, IDF
+=======
+from pathlib import Path
+import shutil
+
+
+>>>>>>> 23b6ded5daf01b25976fede7098f5a6fa866d9a8
 
 
 class Preprocess(object):
@@ -21,6 +28,8 @@ class Preprocess(object):
         self.outputFileDirectory = outputFileDirectory  
         self.outputJson = outputJson
         self.spark = self.init_spark()
+        self.dfPre = None
+        self.dfPost = None
 
     def init_spark(self):
         
@@ -33,19 +42,26 @@ class Preprocess(object):
         #sc = SparkContext(conf=conf)
         return spark
 
+    def getPreprocessedData(self):
+        return self.dfPre
+
+    def getProcessedData(self):
+        return self.dfPost
+
     def getSpark(self):
         return self.spark
 
 
     def preprocessJson(self, inputJsonDirectory):
 
-        print(inputJsonDirectory)
+        # print(inputJsonDirectory)
         df = self.spark.read.json(inputJsonDirectory)
-        print(df.count())
+        # print(df.count())
 
         # df.show()
         
         df = self.flatten(df)
+        self.dfPre = df
 
         # Here we start dropping columns
         
@@ -59,20 +75,18 @@ class Preprocess(object):
         df = df.drop(*drop_columns)
 
         df = df.withColumn("urls_domain", when(col("urls_domain") != "", col("urls_domain")).otherwise("No link"))
+        self.dfPost = df
+        
+        dirpath = Path(self.outputJson)
+        # Checking if path exists, if true delete everything inside folder
+        if dirpath.exists() and dirpath.is_dir():
+            shutil.rmtree(dirpath)
         
         # df.write.format("csv").save(self.outputJson, header = True)
-        
-        # df.select("body").show(10)
 
         comments = df.select("body")
 
         comments.show(10)
-
-
-        # testing
-        # df.toPandas().to_csv(self.outputJson)
-
-        # df.printSchema()
 
         return 0
 
