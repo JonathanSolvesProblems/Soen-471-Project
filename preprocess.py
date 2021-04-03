@@ -14,7 +14,7 @@ from pyspark.sql.functions import col, when
 import matplotlib.pyplot as plt
 from pyspark.mllib.feature import HashingTF, IDF
 import shutil
-
+from pyspark.sql import functions as func
 
 
 
@@ -78,9 +78,11 @@ class Preprocess(object):
         if dirpath.exists() and dirpath.is_dir():
             shutil.rmtree(dirpath)
         
-        # df.write.format("csv").save(self.outputJson, header = True)
+        df.write.format("csv").save(self.outputJson, header = True)
 
         self.word2Vec(df)
+
+
         return 0
 
     def flatten(self, df):
@@ -110,6 +112,7 @@ class Preprocess(object):
         return df
 
     def createResultDirectory(self):
+        # ***TO REMOVE*** 
         # TODO: add outputFileDirectory, was getting weird error with it
         # output_path = self.outputFileDirectory + self.outputJson
         try:
@@ -120,5 +123,21 @@ class Preprocess(object):
             sys.exit("Error: Unable to create file.")
 
     def word2Vec(self, df):
-        comments = df.select("body")
-        comments.show(10)
+        # splitting words line by line
+        words_df = df.select(func.explode(func.split(df.body, "\\W+")).alias("word"))
+        # removing blanks
+        words_df = words_df.filter(words_df.word != "")
+        # lower casing all words in order to not diffentiate capitalization
+        words_df = words_df.select(func.lower(words_df.word).alias("word"))
+
+        words = words_df.rdd.map(lambda x: x[0])
+
+        hashingTF = HashingTF()
+        tf = hashingTF.transform(words)
+
+        # computing IDF vector and scaling term frequencies by the IDF
+        tf.cache()
+        idf = IDF().fit(tf)
+        tfidf = idf.transform(tf)
+        print(tfidf.collect()[0])
+
