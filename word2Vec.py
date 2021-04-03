@@ -1,23 +1,19 @@
 from pyspark.sql import functions as func
-from pyspark.mllib.feature import HashingTF, IDF, Word2Vec
+from pyspark.mllib.feature import Word2Vec
 
 def word2Vec(df):
-    # splitting words line by line
+    # make new column in df of words, removing empty words and setting them all to lowercase
     words = df.select(func.explode(func.split(df.body, "\\W+")).alias("word"))
-    # removing blanks
     words = words.filter(words.word != "")
-    # lower casing all words in order to not diffentiate capitalization
     words = words.select(func.lower(words.word).alias("word"))
+
+    # count the occurences of each word in descending order
     words.groupBy("word").count().sort("count", ascending = False).show()
 
-    words = words.rdd.map(lambda x: x[0])
+    # word2vec model, counting the similarities of a word to others in vector space
+    words = words.rdd.map(lambda x: x[0].split(","))
+    model = Word2Vec().setVectorSize(10).setSeed(42).fit(words)
+    similarities = model.findSynonyms('shares', 40)
 
-    
-    hashingTF = HashingTF()
-    tf = hashingTF.transform(words)
-
-    # computing IDF vector and scaling term frequencies by the IDF
-    tf.cache()
-    idf = IDF().fit(tf)
-    tfidf = idf.transform(tf)
-    print(tfidf.collect()[0])
+    for word, dist in similarities:
+        print("%s %f" % (word, dist))
