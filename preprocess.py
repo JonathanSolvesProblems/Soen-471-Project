@@ -11,15 +11,11 @@ import sys
 import os
 from pathlib import Path
 from pyspark.sql.functions import col, when
-<<<<<<< HEAD
 import matplotlib.pyplot as plt
 from pyspark.mllib.feature import HashingTF, IDF
-=======
-from pathlib import Path
 import shutil
 
 
->>>>>>> 23b6ded5daf01b25976fede7098f5a6fa866d9a8
 
 
 class Preprocess(object):
@@ -84,10 +80,7 @@ class Preprocess(object):
         
         # df.write.format("csv").save(self.outputJson, header = True)
 
-        comments = df.select("body")
-
-        comments.show(10)
-
+        self.word2Vec(df)
         return 0
 
     def flatten(self, df):
@@ -125,3 +118,7 @@ class Preprocess(object):
             f.close()
         except:
             sys.exit("Error: Unable to create file.")
+
+    def word2Vec(self, df):
+        comments = df.select("body")
+        comments.show(10)
