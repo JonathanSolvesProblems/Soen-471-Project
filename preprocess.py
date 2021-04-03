@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 from pyspark.sql.functions import col, when
 import matplotlib.pyplot as plt
+from pyspark.mllib.feature import HashingTF, IDF
 
 
 class Preprocess(object):
@@ -34,6 +35,7 @@ class Preprocess(object):
 
     def getSpark(self):
         return self.spark
+
 
     def preprocessJson(self, inputJsonDirectory):
 
@@ -58,11 +60,15 @@ class Preprocess(object):
 
         df = df.withColumn("urls_domain", when(col("urls_domain") != "", col("urls_domain")).otherwise("No link"))
         
-        
         # df.write.format("csv").save(self.outputJson, header = True)
-
-
         
+        # df.select("body").show(10)
+
+        comments = df.select("body")
+
+        comments.show(10)
+
+
         # testing
         # df.toPandas().to_csv(self.outputJson)
 
