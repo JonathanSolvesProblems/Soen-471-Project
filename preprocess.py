@@ -11,6 +11,7 @@ import sys
 import os
 from pathlib import Path
 from pyspark.sql.functions import col, when
+import matplotlib.pyplot as plt
 
 
 class Preprocess(object):
@@ -58,7 +59,8 @@ class Preprocess(object):
         df = df.withColumn("urls_domain", when(col("urls_domain") != "", col("urls_domain")).otherwise("No link"))
         
         
-        df.write.format("csv").save(self.outputJson, header = True)
+        # df.write.format("csv").save(self.outputJson, header = True)
+
 
         
         # testing
