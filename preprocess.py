@@ -74,12 +74,10 @@ class Preprocess(object):
         # Checking if path exists, if true delete everything inside folder
         if dirpath.exists() and dirpath.is_dir():
             shutil.rmtree(dirpath)
+
+        score(df)
         
         df.write.format("csv").save(self.outputJson, header = True)
-
-        # word2Vec(df)
-        hashTF(df)
-
 
         return 0
 
