@@ -74,7 +74,7 @@ def score(df):
     # TODO: Double check stop words.
     # TODO: Categorizing
     # TODO: Use regex to convert media0.giphy into one
-    # TODO: Use textblob and check how polarize the opinion is.
+    # TODO: Use vador and check how polarize the opinion is.
     
     return rescaledData
 
