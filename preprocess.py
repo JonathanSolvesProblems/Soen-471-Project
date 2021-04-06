@@ -13,7 +13,7 @@ from pathlib import Path
 from pyspark.sql.functions import col, when
 import matplotlib.pyplot as plt
 import shutil
-from word2Vec import *
+from tfidf import *
 
 class Preprocess(object):
     def __init__(self, inputJsonDirectory, outputFileDirectory, outputJson):
@@ -75,9 +75,11 @@ class Preprocess(object):
         if dirpath.exists() and dirpath.is_dir():
             shutil.rmtree(dirpath)
 
-        score(df)
+        score_body(df)
+
+        # score_hashtag(df)
         
-        df.write.format("csv").save(self.outputJson, header = True)
+        # df.write.format("csv").save(self.outputJson, header = True)
 
         return 0
 
