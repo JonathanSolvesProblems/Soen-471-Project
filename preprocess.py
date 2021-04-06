@@ -77,7 +77,8 @@ class Preprocess(object):
         
         df.write.format("csv").save(self.outputJson, header = True)
 
-        word2Vec(df)
+        # word2Vec(df)
+        hashTF(df)
 
 
         return 0
