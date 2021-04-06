@@ -75,11 +75,11 @@ class Preprocess(object):
         if dirpath.exists() and dirpath.is_dir():
             shutil.rmtree(dirpath)
 
-        score_body(df)
+        #score_body(df)
 
-        # score_hashtag(df)
+        score_hashtag(df)
         
-        # df.write.format("csv").save(self.outputJson, header = True)
+        df.write.format("csv").save(self.outputJson, header = True)
 
         return 0
 

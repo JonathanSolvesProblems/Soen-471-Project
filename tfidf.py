@@ -67,6 +67,8 @@ def score_body(df):
     return scaledData
 
 def score_hashtag(df):
+    # throws error if we don't filter null.
+    df = df.filter(df.hashtags != "null")
     tokenizer = Tokenizer(inputCol = "hashtags", outputCol = "words")
     wordsData = tokenizer.transform(df)
 
@@ -77,12 +79,12 @@ def score_hashtag(df):
     idfModel = idf.fit(featurizedData)
     scaledData = idfModel.transform(featurizedData)
 
-    # sum_ = udf(lambda x: float(x.values.sum()), DoubleType())
-    # scaledData = scaledData.withColumn("hashtag significance", sum_("features"))
+    sum_ = udf(lambda x: float(x.values.sum()), DoubleType())
+    scaledData = scaledData.withColumn("hashtag significance", sum_("features"))
 
-    # scaledData.select("hashtag significance").show()
+    scaledData.select("hashtag significance").show()
     
-    # return scaledData
+    return scaledData
 
     # TODO: Add sentiment analysis
     # TODO: Do same thing on hashtags
