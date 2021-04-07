@@ -5,7 +5,7 @@ from preprocess import Preprocess
 from plot import plotUpvotes
 
 # Constants
-parlerDataDirectory = './parler_small.ndjson/'
+parlerDataDirectory = './parler_data000000000033.ndjson/'
 outputFileDirectory = './preprocessed/'
 outputJson = './parlers-data/'
 
@@ -25,6 +25,7 @@ def main():
     # exception for testing, move to more appropriate place later.
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
+
     # plotUpvotes(preprocessor.getPreprocessedData(), upvoteBins)
     # plotUpvotes(preprocessor.getProcessedData(), upvoteBins)
 

@@ -63,7 +63,6 @@ class Preprocess(object):
         self.dfPre = df
 
         # Here we start dropping columns
-        
         # remove -1 comments
         df = df.filter(df.comments != -1)
 
@@ -72,26 +71,30 @@ class Preprocess(object):
         'urls_short', 'urls_state', 'createdAt', 'urls_long', 'urls_metadata_length']
 
         df = df.drop(*drop_columns)
+        df = self.resample(df, 0.5, 'upvotes', 100000)
 
         df = df.withColumn("urls_domain_modified", regexp_replace(col("urls_domain"), "media\d*.giphy.com", "media0.giphy.com"))
+        df = df.withColumn("urls_metadata_mimeType", when(col("urls_metadata_mimeType") != "", col("urls_metadata_mimeType")).otherwise("No mimetype"))
 
         df = df.withColumn("urls_domain_modified", when(col("urls_domain_modified") != "", col("urls_domain_modified")).otherwise("No link"))
         indexer = StringIndexer(inputCol="urls_metadata_mimeType", outputCol="categoryIndexMimeType")
         indexed = indexer.fit(df).transform(df)
         df = indexed
-
+        
         indexer = StringIndexer(inputCol="urls_domain_modified", outputCol="categoryIndexDomains")
         indexed = indexer.fit(df).transform(df)
         df = indexed
         df = df.withColumn('article', F.when(df.verified == 'FALSE', 0).otherwise(1))
         df = df.withColumn('sensitive', F.when(df.verified == 'FALSE', 0).otherwise(1))
         df = df.withColumn('verified', F.when(df.verified == 'FALSE', 0).otherwise(1))
+        df = df.filter((df.article == '0') | (df.article == '1'))
         # indexed.show()
 
         def sentiment_analysis(text):
             return TextBlob(text).sentiment.polarity
         sentiment_analysis_udf = udf(sentiment_analysis , FloatType())
         df  = df.withColumn("sentiment_score", sentiment_analysis_udf( df['body']))
+
         self.dfPost = df
         
         dirpath = Path(self.outputJson)
@@ -132,4 +135,14 @@ class Preprocess(object):
                                  for field in df.schema.fields
                                  if type(field.dataType) == ArrayType or  type(field.dataType) == StructType])
         return df
+
+
+    def resample(self, base_features,ratio,class_field,base_class):
+        pos = base_features.filter(col(class_field)>=base_class)
+        neg = base_features.filter(col(class_field)<base_class)
+        total_pos = pos.count()
+        total_neg = neg.count()
+        fraction=float(total_pos*ratio)/float(total_neg)
+        sampled = neg.sample(False,fraction)
+        return sampled.union(pos)
 
