@@ -66,7 +66,7 @@ def score_body(df):
     scaledData = scaledData.withColumn("body significance", sum_("features"))
 
     body_significance = scaledData.select("body significance")
-
+    # lit(0) is slower than row_number().over(Window.orderBy(monotonically_increasing_id()), using faster option despite warning, review.
     df = df.withColumn("temp", row_number().over(Window.orderBy(monotonically_increasing_id())))
     body_significance = body_significance.withColumn("temp", row_number().over(Window.orderBy(monotonically_increasing_id())))
     df = df.join(body_significance, on=["temp"]).drop("temp")
@@ -91,15 +91,10 @@ def score_hashtag(df):
 
     hashtag_significance = scaledData.select("hashtag significance")
 
-    df = df.withColumn("temp", row_number().over(Window.orderBy(monotonically_increasing_id())))
-    hashtag_significance = hashtag_significance.withColumn("temp", row_number().over(Window.orderBy(monotonically_increasing_id())))
-    df = df.join(hashtag_significance, on=["temp"]).drop("temp")
+    df = df.withColumn("temp2", row_number().over(Window.orderBy(monotonically_increasing_id())))
+    hashtag_significance = hashtag_significance.withColumn("temp2", row_number().over(Window.orderBy(monotonically_increasing_id())))
+    df = df.join(hashtag_significance, on=["temp2"]).drop("temp2")
 
     return df
 
-    # TODO: Add sentiment analysis
-    # TODO: Do same thing on hashtags
-    # TODO: Double check stop words.
-    # TODO: Categorizing
-    # TODO: Use regex to convert media0.giphy into one
-    # TODO: Use vador and check how polarize the opinion is.
+    # TODO: Omit outliers when have all data distrubted.
