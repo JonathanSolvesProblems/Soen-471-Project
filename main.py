@@ -5,7 +5,7 @@ from preprocess import Preprocess
 from plot import plotUpvotes
 
 # Constants
-parlerDataDirectory = './parler_data000000000033.ndjson/'
+parlerDataDirectory = './parler_small.ndjson/'
 outputFileDirectory = './preprocessed/'
 outputJson = './parlers-data/'
 

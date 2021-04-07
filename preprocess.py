@@ -71,7 +71,7 @@ class Preprocess(object):
         'urls_short', 'urls_state', 'createdAt', 'urls_long', 'urls_metadata_length']
 
         df = df.drop(*drop_columns)
-        df = self.resample(df, 0.5, 'upvotes', 100000)
+        # df = self.resample(df, 0.5, 'upvotes', 100000)
 
         df = df.withColumn("urls_domain_modified", regexp_replace(col("urls_domain"), "media\d*.giphy.com", "media0.giphy.com"))
         df = df.withColumn("urls_metadata_mimeType", when(col("urls_metadata_mimeType") != "", col("urls_metadata_mimeType")).otherwise("No mimetype"))
@@ -93,7 +93,7 @@ class Preprocess(object):
         def sentiment_analysis(text):
             return TextBlob(text).sentiment.polarity
         sentiment_analysis_udf = udf(sentiment_analysis , FloatType())
-        df  = df.withColumn("sentiment_score", sentiment_analysis_udf( df['body']))
+        df = df.withColumn("sentiment_score", sentiment_analysis_udf( df['body']))
 
         self.dfPost = df
         
@@ -102,9 +102,8 @@ class Preprocess(object):
         if dirpath.exists() and dirpath.is_dir():
             shutil.rmtree(dirpath)
 
-        #score_body(df)
-
-        score_hashtag(df)
+        df = score_body(df)
+        df = score_hashtag(df)
         
         df.write.format("csv").save(self.outputJson, header = True)
 
