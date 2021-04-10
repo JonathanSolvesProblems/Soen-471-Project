@@ -4,21 +4,19 @@ import sys
 from preprocess import Preprocess
 
 # Constants
-parlerDataDirectory = './parler_small.ndjson/'
+parlerDataDirectory = './part-00000-fe953ba9-c2ae-401a-bf98-58cbafc0ddcc-c000.csv/'
 outputFileDirectory = './preprocessed/'
 outputJson = './parlers-data/'
 
 
 def main():
-    print("hello world!")
+    print("hello world! we ride at dawn")
 
     # exception for testing, move to more appropriate place later.
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
     # preprocessor.createResultDirectory()
-    df = preprocessor.getProcessedData()
-    df = df.drop('body')
-    df.show()
+
 
 def preprocess():
     return 0
