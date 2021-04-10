@@ -1,12 +1,15 @@
 from pyspark.sql import functions as func
 from pyspark.sql import Row
+from pyspark.sql.functions import lit, row_number, monotonically_increasing_id
+from pyspark.sql.window import Window
 from pyspark.ml.feature import Word2Vec, HashingTF, IDF, Tokenizer
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 from pyspark.sql.functions import udf
-from pyspark.sql.types import DoubleType
+from pyspark.sql.types import DoubleType, FloatType
 from pyspark.sql.functions import udf
+from pyspark.sql.functions import col, when
 
 
 def display_word_count(df):
@@ -65,16 +68,21 @@ def score_body(df):
     sum_ = udf(lambda x: float(x.values.sum()), DoubleType())
     scaledData = scaledData.withColumn("body significance", sum_("features"))
 
-    scaledData.select("body significance").show()
+    body_significance = scaledData.select("body significance")
+    # lit(0) is slower than row_number().over(Window.orderBy(monotonically_increasing_id()), using faster option despite warning, review.
+    df = df.withColumn("temp", row_number().over(Window.orderBy(monotonically_increasing_id())))
+    body_significance = body_significance.withColumn("temp",
+                                                     row_number().over(Window.orderBy(monotonically_increasing_id())))
+    df = df.join(body_significance, on=["temp"]).drop("temp")
 
-    return scaledData
+    return df
 
 
 def score_hashtag(df):
     # throws error if we don't filter null.
-    df = df.filter(df.hashtags != "null")
+    filter_null = df.filter(df.hashtags != "null")
     tokenizer = Tokenizer(inputCol="hashtags", outputCol="words")
-    wordsData = tokenizer.transform(df)
+    wordsData = tokenizer.transform(filter_null)
 
     hashingTF = HashingTF(inputCol="words", outputCol="rawFeatures", numFeatures=20)
     featurizedData = hashingTF.transform(wordsData)
@@ -86,13 +94,13 @@ def score_hashtag(df):
     sum_ = udf(lambda x: float(x.values.sum()), DoubleType())
     scaledData = scaledData.withColumn("hashtag significance", sum_("features"))
 
-    scaledData.select("hashtag significance").show()
+    hashtag_significance = scaledData.select("hashtag significance")
 
-    return scaledData
+    df = df.withColumn("temp2", row_number().over(Window.orderBy(monotonically_increasing_id())))
+    hashtag_significance = hashtag_significance.withColumn("temp2", row_number().over(
+        Window.orderBy(monotonically_increasing_id())))
+    df = df.join(hashtag_significance, on=["temp2"]).drop("temp2")
 
-    # TODO: Add sentiment analysis
-    # TODO: Do same thing on hashtags
-    # TODO: Double check stop words.
-    # TODO: Categorizing
-    # TODO: Use regex to convert media0.giphy into one
-    # TODO: Use vador and check how polarize the opinion is.
+    return df
+
+    # TODO: Omit outliers when have all data distrubted.

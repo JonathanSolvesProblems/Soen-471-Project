@@ -16,7 +16,9 @@ def main():
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
     # preprocessor.createResultDirectory()
-
+    df = preprocessor.getProcessedData()
+    df = df.drop('body')
+    df.show()
 
 def preprocess():
     return 0
