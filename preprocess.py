@@ -166,3 +166,4 @@ class Preprocess(object):
         # TO REMOVE, was for testing
         df = self.spark.read.csv("./parler-data/*.csv", header=True)
         # df.show(1)
+
