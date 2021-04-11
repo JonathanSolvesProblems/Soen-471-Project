@@ -1,15 +1,15 @@
 from preprocess import *
 from pyspark.ml.classification import RandomForestClassifier
+from pyspark.ml.regression import RandomForestRegressor as spark_RFRegressor
 from pyspark.sql.functions import col, when
-from pyspark.ml.feature import StringIndexer, VectorAssembler
+from pyspark.ml.feature import StringIndexer, VectorAssembler, VectorIndexer
 from pyspark.ml.regression import LinearRegression
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from sklearn import datasets, linear_model
-from sklearn.metrics import mean_squared_error, r2_score
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator, RegressionEvaluator
 from pyspark.mllib.evaluation import MulticlassMetrics, RegressionMetrics
+from pyspark.ml import Pipeline
 from pyspark.mllib.util import MLUtils
 from sklearn import datasets, linear_model
 from sklearn.ensemble import RandomForestRegressor
@@ -127,18 +127,14 @@ def prep_data_spark(parlerDataDirectory):
                    'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance'],
         outputCol="features")
     output = assembler.transform(indexed)
-    #output.show()
+    output.show()
 
     return output
 
-def random_forest_spark(parlerDataDirectory):
+def random_forest_classification_spark(parlerDataDirectory):
 
     df = prep_data_spark(parlerDataDirectory)
-
-    df.show()
     train, val, test = df.randomSplit([0.6, 0.2, 0.2])
-
-    #featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
 
     rf = RandomForestClassifier(labelCol="label", featuresCol="features")
     rf_model = rf.fit(df)
@@ -160,26 +156,14 @@ def linear_regression_spark(parlerDataDirectory):
 
 def random_forest_regression_spark(parlerDataDirectory):
     df = prep_data_spark(parlerDataDirectory)
-    featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
 
-    # Split the data into training and test sets (30% held out for testing)
-    (trainingData, testData) = df.randomSplit([0.7, 0.3])
+    train, test = df.randomSplit([0.7, 0.3])
+    rf = spark_RFRegressor(featuresCol="features")
+    rf_model = rf.fit(df)
+    predictions = rf_model.transform(test)
 
-    # Train a RandomForest model.
-    rf = RandomForestRegressor(featuresCol="indexedFeatures")
-
-    # Chain indexer and forest in a Pipeline
-    pipeline = Pipeline(stages=[featureIndexer, rf])
-
-    # Train model.  This also runs the indexer.
-    model = pipeline.fit(trainingData)
-
-    # Make predictions.
-    predictions = model.transform(testData)
-
-    # Select example rows to display.
-    predictions.select("prediction", "label", "features").show(5)
-    return 0
+    predictions.select("prediction", "label", "features").show()
+    return predictions
 
 def random_forest_spark_metrics(predictions):
     # Select (prediction, true label) and compute test error
@@ -248,11 +232,12 @@ def scikit_metrics(y_test, y_pred):
     print('R-Squared Error:', metrics.r2_score(y_test, y_pred))
     print('Explained Variance Error:', metrics.explained_variance_score(y_test, y_pred))
 
-#lr_model, pred = linear_regression_spark(parlerDataDirectory)
-#linear_regression_spark_metrics(lr_model, pred)
-#rf, predictions = random_forest_spark(parlerDataDirectory)
-#random_forest_spark_metrics(predictions)
-train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
-_, _, test_y_pred = linear_regression_scikit(parlerDataDirectory)
-scikit_metrics(test_y, test_y_pred)
-#random_forest_scikit(parlerDataDirectory)
+random_forest_regression_spark(parlerDataDirectory)
+# lr_model, pred = linear_regression_spark(parlerDataDirectory)
+# linear_regression_spark_metrics(lr_model, pred)
+# rf, predictions = random_forest_spark(parlerDataDirectory)
+# random_forest_spark_metrics(predictions)
+# train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
+# _, _, test_y_pred = linear_regression_scikit(parlerDataDirectory)
+# scikit_metrics(test_y, test_y_pred)
+# random_forest_scikit(parlerDataDirectory)
