@@ -50,6 +50,8 @@ class Preprocess(object):
     def getSpark(self):
         return self.spark
 
+    
+
 
     def preprocessJson(self, inputJsonDirectory):
 
@@ -88,7 +90,7 @@ class Preprocess(object):
         df = df.withColumn('article', F.when(df.verified == 'FALSE', 0).otherwise(1))
         df = df.withColumn('sensitive', F.when(df.verified == 'FALSE', 0).otherwise(1))
         df = df.withColumn('verified', F.when(df.verified == 'FALSE', 0).otherwise(1))
-        df = df.filter((df.article == '0') | (df.article == '1'))
+        # df = df.filter((df.article == '0') | (df.article == '1'))
         # indexed.show()
 
         def sentiment_analysis(text):
@@ -112,6 +114,8 @@ class Preprocess(object):
         df = df.dropDuplicates()
 
         df = score_body(df)
+        df = range_upvotes(df)
+        
 
         self.dfPost = df
 
@@ -162,3 +166,4 @@ class Preprocess(object):
         df = self.spark.read.csv("./parler-data/*.csv", header = True)
         # df.show(1)
 
+    
