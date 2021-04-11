@@ -8,8 +8,16 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from sklearn import datasets, linear_model
 from sklearn.metrics import mean_squared_error, r2_score
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator, RegressionEvaluator
+from pyspark.mllib.evaluation import MulticlassMetrics, RegressionMetrics
+from pyspark.mllib.util import MLUtils
+from sklearn import datasets, linear_model
+from sklearn.ensemble import RandomForestRegressor
+from sklearn import metrics
+import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error, explained_variance_score, r2_score
 
-parlerDataDirectory = './part-00000-5f5fb812-5c87-4879-895b-09203ca5e852-c000.csv/'
+parlerDataDirectory = './parler_small.ndjson/'
 outputFileDirectory = './preprocessed/'
 outputJson = './parlers-data/'
 
@@ -57,59 +65,59 @@ def linear_regression_scikit(parlerDataDirectory):
     # Make predictions using the validation set
     val_y_pred = model.predict(val_x)
     val_y_pred = pd.DataFrame(val_y_pred, columns=['val_predicted_upvotes'])
-    val_comparison = val_y_pred.join(val_y)
-    print(val_comparison)
+    #val_comparison = val_y_pred.join(val_y)
+    #print(val_comparison)
 
     # Make predictions using the test set
     test_y_pred = model.predict(test_x)
     test_y_pred = pd.DataFrame(test_y_pred, columns=['test_predicted_upvotes'])
-    test_comparison = test_y_pred.join(test_y)
-    print(test_comparison)
+    #test_comparison = test_y_pred.join(test_y)
+    #print(test_comparison)
 
-    return model, val_y_pred, val_comparison, test_y_pred, test_comparison
+    return model, val_y_pred, test_y_pred
 
 # Parameters to consider: n_estimators, criterion, max_depth, min_samples_split
 def random_forest_scikit(parlerDataDirectory):
     train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
 
-    rf = RandomForestClassifier()
+    rf = RandomForestRegressor()
     rf.fit(train_x, train_y)
     val_y_pred = rf.predict(val_x)
     val_y_pred = pd.DataFrame(val_y_pred, columns=['val_predicted_upvotes'])
-    val_comparison = val_y_pred.join(val_y)
-    print(val_comparison)
+    #val_comparison = val_y_pred.join(val_y)
+    #print(val_comparison)
 
     # Make predictions using the test set
     test_y_pred = rf.predict(test_x)
     test_y_pred = pd.DataFrame(test_y_pred, columns=['test_predicted_upvotes'])
-    test_comparison = test_y_pred.join(test_y)
-    print(val_comparison)
+    #test_comparison = test_y_pred.join(test_y)
+    #print(val_comparison)
 
-    return val_y_pred, val_comparison, test_y_pred, test_comparison
+    return val_y_pred, test_y_pred
 
 #SPARK MODELS
 def prep_data_spark(parlerDataDirectory):
-    # preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
-    # preprocessor.preprocessJson(parlerDataDirectory)
-    # df = preprocessor.getProcessedData()
-    # df = df.drop('body', 'createdAtformatted')
-    spark = init_spark()
-    df = spark.read.csv(parlerDataDirectory, header=True)
+    preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
+    preprocessor.preprocessJson(parlerDataDirectory)
+    df = preprocessor.getProcessedData()
+    df = df.drop('body', 'createdAtformatted')
+    # spark = init_spark()
+    # df = spark.read.csv(parlerDataDirectory, header=True)
     df.show()
     #df = df.filter(df.upvotes.isNotNull())
-    df = df.na.drop()
-    df = df.withColumn("comments", col("comments").cast(FloatType())).\
-        withColumn("followers", col("followers").cast(FloatType())).\
-        withColumn("following", col("following").cast(FloatType())).\
-        withColumn("impressions", col("impressions").cast(FloatType())).\
-        withColumn("reposts", col("reposts").cast(FloatType())).\
-        withColumn("verified", col("verified").cast(FloatType())). \
-        withColumn("categoryIndexMimeType", col("categoryIndexMimeType").cast(FloatType())). \
-        withColumn("categoryIndexDomains", col("categoryIndexDomains").cast(FloatType())). \
-        withColumn("sentiment_score", col("sentiment_score").cast(FloatType())). \
-        withColumn("hashtag significance", col("hashtag significance").cast(FloatType())). \
-        withColumn("body significance", col("body significance").cast(FloatType())). \
-        withColumn("upvotes", col("upvotes").cast(FloatType()))
+    # df = df.na.drop()
+    # df = df.withColumn("comments", col("comments").cast(FloatType())).\
+    #     withColumn("followers", col("followers").cast(FloatType())).\
+    #     withColumn("following", col("following").cast(FloatType())).\
+    #     withColumn("impressions", col("impressions").cast(FloatType())).\
+    #     withColumn("reposts", col("reposts").cast(FloatType())).\
+    #     withColumn("verified", col("verified").cast(FloatType())). \
+    #     withColumn("categoryIndexMimeType", col("categoryIndexMimeType").cast(FloatType())). \
+    #     withColumn("categoryIndexDomains", col("categoryIndexDomains").cast(FloatType())). \
+    #     withColumn("sentiment_score", col("sentiment_score").cast(FloatType())). \
+    #     withColumn("hashtag significance", col("hashtag significance").cast(FloatType())). \
+    #     withColumn("body significance", col("body significance").cast(FloatType())). \
+    #     withColumn("upvotes", col("upvotes").cast(FloatType()))
 
     indexer = StringIndexer(inputCol='upvotes', outputCol='label')
     indexed = indexer.fit(df).transform(df)
@@ -121,14 +129,6 @@ def prep_data_spark(parlerDataDirectory):
     output = assembler.transform(indexed)
     #output.show()
 
-    # stages = [indexer]
-    # stages += [assembler]
-    # cols = df.columns
-    # pipeline = Pipeline(stages=stages)
-    # pipelineModel = pipeline.fit(df)
-    # df = pipelineModel.transform(df)
-    # selectedCols = ['label', 'features'] + cols
-    # df = df.select(selectedCols)
     return output
 
 def random_forest_spark(parlerDataDirectory):
@@ -144,7 +144,7 @@ def random_forest_spark(parlerDataDirectory):
     rf_model = rf.fit(df)
     predictions = rf_model.transform(test)
     predictions.show()
-    return predictions
+    return rf_model, predictions
 
 def linear_regression_spark(parlerDataDirectory):
     df = prep_data_spark(parlerDataDirectory)
@@ -152,11 +152,107 @@ def linear_regression_spark(parlerDataDirectory):
 
     lr = LinearRegression(featuresCol='features', labelCol='label', maxIter=10, regParam=0.3, elasticNetParam=0.8)
     lr_model = lr.fit(train)
+    predictions = lr_model.transform(test)
+    predictions.show()
+    test_result = lr_model.evaluate(test)
+
+    return lr_model, predictions
+
+def random_forest_regression_spark(parlerDataDirectory):
+    df = prep_data_spark(parlerDataDirectory)
+    featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
+
+    # Split the data into training and test sets (30% held out for testing)
+    (trainingData, testData) = df.randomSplit([0.7, 0.3])
+
+    # Train a RandomForest model.
+    rf = RandomForestRegressor(featuresCol="indexedFeatures")
+
+    # Chain indexer and forest in a Pipeline
+    pipeline = Pipeline(stages=[featureIndexer, rf])
+
+    # Train model.  This also runs the indexer.
+    model = pipeline.fit(trainingData)
+
+    # Make predictions.
+    predictions = model.transform(testData)
+
+    # Select example rows to display.
+    predictions.select("prediction", "label", "features").show(5)
+    return 0
+
+def random_forest_spark_metrics(predictions):
+    # Select (prediction, true label) and compute test error
+    evaluator = MulticlassClassificationEvaluator(
+        labelCol="label", predictionCol="prediction", metricName="accuracy")
+    accuracy = evaluator.evaluate(predictions)
+    print(accuracy)
+    print("Test Error = %g" % (1.0 - accuracy))
+
+    # Compute raw scores on the test set
+    predictionAndLabels = predictions.select(['prediction', 'label']).rdd
+
+    # Instantiate metrics object
+    metrics = MulticlassMetrics(predictionAndLabels)
+
+    # Overall statistics
+    confusionMatrix = metrics.confusionMatrix().toArray()
+    precision = metrics.precision()
+    recall = metrics.recall()
+    f1Score = metrics.fMeasure()
+    print("Summary Stats")
+    print("Confusion Matrix\n %s" % confusionMatrix)
+    print("Precision = %s" % precision)
+    print("Recall = %s" % recall)
+    print("F1 Score = %s" % f1Score)
+
+    # Statistics by class
+    labels = predictions.select('prediction').distinct().collect()
+    for label in sorted(labels):
+        print(label)
+        print("Class %s precision = %s" % (label, metrics.precision(label)))
+        print("Class %s recall = %s" % (label, metrics.recall(label)))
+        print("Class %s F1 Measure = %s" % (label, metrics.fMeasure(label, beta=1.0)))
+
+    # Weighted stats
+    print("Weighted recall = %s" % metrics.weightedRecall)
+    print("Weighted precision = %s" % metrics.weightedPrecision)
+    print("Weighted F(1) Score = %s" % metrics.weightedFMeasure())
+    print("Weighted F(0.5) Score = %s" % metrics.weightedFMeasure(beta=0.5))
+    print("Weighted false positive rate = %s" % metrics.weightedFalsePositiveRate)
+
+def linear_regression_spark_metrics(lr_model, predictions):
     print("Coefficients: " + str(lr_model.coefficients))
     print("Intercept: " + str(lr_model.intercept))
 
+    predictionAndLabels = predictions.select(['prediction', 'label']).rdd
 
-#linear_regression_spark(parlerDataDirectory)
-random_forest_spark(parlerDataDirectory)
-#linear_regression_scikit(parlerDataDirectory)
+    # Instantiate metrics object
+    metrics = RegressionMetrics(predictionAndLabels)
+
+    print("Mean Squared Error = %s" % metrics.meanSquaredError)
+    print("Root Mean Squared Error = %s" % metrics.rootMeanSquaredError)
+    print("R-squared = %s" % metrics.r2)
+    print("Mean Absolute Error = %s" % metrics.meanAbsoluteError)
+    print("Explained variance = %s" % metrics.explainedVariance)
+
+def scikit_metrics(y_test, y_pred):
+
+    print('Accuracy: ', metrics.accuracy_score)
+    print('Recall: ', metrics.recall_score)
+    print('Precision: ', metrics.precision_score)
+    print('F1 Measure: ', metrics.f1_score)
+    print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+    print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
+    print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+    print('R-Squared Error:', metrics.r2_score(y_test, y_pred))
+    print('Explained Variance Error:', metrics.explained_variance_score(y_test, y_pred))
+
+#lr_model, pred = linear_regression_spark(parlerDataDirectory)
+#linear_regression_spark_metrics(lr_model, pred)
+#rf, predictions = random_forest_spark(parlerDataDirectory)
+#random_forest_spark_metrics(predictions)
+train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
+_, _, test_y_pred = linear_regression_scikit(parlerDataDirectory)
+scikit_metrics(test_y, test_y_pred)
 #random_forest_scikit(parlerDataDirectory)
