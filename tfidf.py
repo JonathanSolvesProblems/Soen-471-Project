@@ -100,7 +100,7 @@ def score_hashtag(df):
     # TODO: Omit outliers when have all data distrubted.
 
 def range_upvotes(df):
-        df = df.withColumn("upvotes", when((col("upvotes") >= 0) & (col("upvotes") <= 5000), 1).when((col("upvotes") > 5000) & (col("upvotes") <= 10000), 2)\
+        df = df.withColumn("upvotes", when(col("upvotes").isNull(), 0).when((col("upvotes") >= 0) & (col("upvotes") <= 5000), 1).when((col("upvotes") > 5000) & (col("upvotes") <= 10000), 2)\
                             .when((col("upvotes") > 10000) & (col("upvotes") <= 15000), 3).when((col("upvotes") > 15000) & (col("upvotes") <= 20000), 4)\
                             .when((col("upvotes") > 20000) & (col("upvotes") <= 25000), 5).when((col("upvotes") > 30000) & (col("upvotes") <= 35000), 6)\
                             .when((col("upvotes") > 35000) & (col("upvotes") <= 40000), 7).when((col("upvotes") > 40000) & (col("upvotes") <= 45000), 8)\

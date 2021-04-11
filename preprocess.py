@@ -119,7 +119,8 @@ class Preprocess(object):
 
         self.dfPost = df
 
-        df.coalesce(1).write.format("csv").save(self.outputJson, header = True)
+        # df.show(1)
+        # df.coalesce(1).write.format("csv").save(self.outputJson, header = True)
 
         # df.show(1)
 
