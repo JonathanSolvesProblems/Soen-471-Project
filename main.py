@@ -4,7 +4,7 @@ import sys
 from preprocess import Preprocess
 
 # Constants
-parlerDataDirectory = './part-00000-fe953ba9-c2ae-401a-bf98-58cbafc0ddcc-c000.csv/'
+parlerDataDirectory = './parler_data000000000037.ndjson/'
 outputFileDirectory = './preprocessed/'
 outputJson = './parlers-data/'
 

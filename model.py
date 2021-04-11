@@ -1,26 +1,28 @@
 from preprocess import *
-#from plot import *
-import matplotlib.pyplot as plt
 from pyspark.ml.classification import RandomForestClassifier
-from pyspark.ml.regression import RandomForestRegressor
-from tfidf import *
 from pyspark.sql.functions import col, when
-from pyspark.ml.linalg import Vectors
-from pyspark.ml.feature import VectorIndexer
-from pyspark.ml.evaluation import RegressionEvaluator
-from pyspark.ml.feature import OneHotEncoderEstimator, StringIndexer, VectorAssembler
+from pyspark.ml.feature import StringIndexer, VectorAssembler
 from pyspark.ml.regression import LinearRegression
-from pyspark.ml import Pipeline
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from sklearn import datasets, linear_model
 from sklearn.metrics import mean_squared_error, r2_score
 
-parlerDataDirectory = './parler_small.ndjson/'
+parlerDataDirectory = './part-00000-5f5fb812-5c87-4879-895b-09203ca5e852-c000.csv/'
 outputFileDirectory = './preprocessed/'
 outputJson = './parlers-data/'
+
+def init_spark():
+    spark = SparkSession \
+        .builder \
+        .appName("Python Spark SQL basic example") \
+        .config("spark.some.config.option", "some-value") \
+        .getOrCreate()
+    # conf = SparkConf().setAppName("test").setMaster("local")
+    # sc = SparkContext(conf=conf)
+    return spark
+
 
 #SCIKIT MODELS
 def prep_data_scikit(parlerDataDirectory):
@@ -70,7 +72,7 @@ def linear_regression_scikit(parlerDataDirectory):
 def random_forest_scikit(parlerDataDirectory):
     train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
 
-    rf = RandomForestRegressor()
+    rf = RandomForestClassifier()
     rf.fit(train_x, train_y)
     val_y_pred = rf.predict(val_x)
     val_y_pred = pd.DataFrame(val_y_pred, columns=['val_predicted_upvotes'])
@@ -87,36 +89,59 @@ def random_forest_scikit(parlerDataDirectory):
 
 #SPARK MODELS
 def prep_data_spark(parlerDataDirectory):
-    preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
-    preprocessor.preprocessJson(parlerDataDirectory)
-    df = preprocessor.getProcessedData()
-    df = df.drop('body', 'createdAtformatted')
+    # preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
+    # preprocessor.preprocessJson(parlerDataDirectory)
+    # df = preprocessor.getProcessedData()
+    # df = df.drop('body', 'createdAtformatted')
+    spark = init_spark()
+    df = spark.read.csv(parlerDataDirectory, header=True)
+    df.show()
+    #df = df.filter(df.upvotes.isNotNull())
+    df = df.na.drop()
+    df = df.withColumn("comments", col("comments").cast(FloatType())).\
+        withColumn("followers", col("followers").cast(FloatType())).\
+        withColumn("following", col("following").cast(FloatType())).\
+        withColumn("impressions", col("impressions").cast(FloatType())).\
+        withColumn("reposts", col("reposts").cast(FloatType())).\
+        withColumn("verified", col("verified").cast(FloatType())). \
+        withColumn("categoryIndexMimeType", col("categoryIndexMimeType").cast(FloatType())). \
+        withColumn("categoryIndexDomains", col("categoryIndexDomains").cast(FloatType())). \
+        withColumn("sentiment_score", col("sentiment_score").cast(FloatType())). \
+        withColumn("hashtag significance", col("hashtag significance").cast(FloatType())). \
+        withColumn("body significance", col("body significance").cast(FloatType())). \
+        withColumn("upvotes", col("upvotes").cast(FloatType()))
 
-    label_stringIdx = StringIndexer(inputCol='upvotes', outputCol='label')
-    stages = [label_stringIdx]
+    indexer = StringIndexer(inputCol='upvotes', outputCol='label')
+    indexed = indexer.fit(df).transform(df)
+
     assembler = VectorAssembler(
         inputCols=['comments', 'followers', 'following', 'impressions', 'reposts', 'verified', 'categoryIndexMimeType',
                    'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance'],
         outputCol="features")
-    stages += [assembler]
+    output = assembler.transform(indexed)
+    #output.show()
 
-    cols = df.columns
-    pipeline = Pipeline(stages=stages)
-    pipelineModel = pipeline.fit(df)
-    df = pipelineModel.transform(df)
-    selectedCols = ['label', 'features'] + cols
-    df = df.select(selectedCols)
-    return df
+    # stages = [indexer]
+    # stages += [assembler]
+    # cols = df.columns
+    # pipeline = Pipeline(stages=stages)
+    # pipelineModel = pipeline.fit(df)
+    # df = pipelineModel.transform(df)
+    # selectedCols = ['label', 'features'] + cols
+    # df = df.select(selectedCols)
+    return output
 
 def random_forest_spark(parlerDataDirectory):
 
     df = prep_data_spark(parlerDataDirectory)
+
+    df.show()
     train, val, test = df.randomSplit([0.6, 0.2, 0.2])
 
-    featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
+    #featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
 
     rf = RandomForestClassifier(labelCol="label", featuresCol="features")
-    rf_model = rf.fit(train)
+    rf_model = rf.fit(df)
     predictions = rf_model.transform(test)
     predictions.show()
     return predictions
@@ -130,7 +155,8 @@ def linear_regression_spark(parlerDataDirectory):
     print("Coefficients: " + str(lr_model.coefficients))
     print("Intercept: " + str(lr_model.intercept))
 
+
 #linear_regression_spark(parlerDataDirectory)
-#random_forest_spark(parlerDataDirectory)
+random_forest_spark(parlerDataDirectory)
 #linear_regression_scikit(parlerDataDirectory)
 #random_forest_scikit(parlerDataDirectory)
