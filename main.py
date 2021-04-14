@@ -28,10 +28,12 @@ def main():
     # exception for testing, move to more appropriate place later.
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
+
+    
     # preprocessor.reprocessed_data()
 
-    plotUpvotes(preprocessor.getPreprocessedData(), upvoteBins)
-    plotUpvotes(preprocessor.getProcessedData(), upvoteBins)
+    # plotUpvotes(preprocessor.getPreprocessedData(), upvoteBins)
+    # plotUpvotes(preprocessor.getProcessedData(), upvoteBins)
 
 
 def preprocess():
