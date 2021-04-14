@@ -100,18 +100,11 @@ def score_hashtag(df):
     # TODO: Omit outliers when have all data distrubted.
 
 def range_upvotes(df):
-        df = df.withColumn("upvotes", when(col("upvotes").isNull(), 0).when((col("upvotes") >= 0) & (col("upvotes") <= 5000), 1).when((col("upvotes") > 5000) & (col("upvotes") <= 10000), 2)\
-                            .when((col("upvotes") > 10000) & (col("upvotes") <= 15000), 3).when((col("upvotes") > 15000) & (col("upvotes") <= 20000), 4)\
-                            .when((col("upvotes") > 20000) & (col("upvotes") <= 25000), 5).when((col("upvotes") > 30000) & (col("upvotes") <= 35000), 6)\
-                            .when((col("upvotes") > 35000) & (col("upvotes") <= 40000), 7).when((col("upvotes") > 40000) & (col("upvotes") <= 45000), 8)\
-                            .when((col("upvotes") > 45000) & (col("upvotes") <= 50000), 9).when((col("upvotes") > 50000) & (col("upvotes") <= 55000), 10)\
-                            .when((col("upvotes") > 55000) & (col("upvotes") <= 60000), 11).when((col("upvotes") > 60000) & (col("upvotes") <= 65000), 12)\
-                            .when((col("upvotes") > 65000), 13))
-
-        # TESTING - To Remove
-        # data_df = data_df.withColumn("Plays", data_df["Plays"].cast(IntegerType()))
-        # df = df.withColumn("urls_domain_modified", when(col("urls_domain_modified") != "", col("urls_domain_modified")).otherwise("No link"))
-        # df = df.withColumn("upvotes_2", when((col("upvotes") >= 0) & (col("upvotes") <= 100), 1).otherwise("Meow"))
-        # df = df.withColumn("upvotes", df["upvotes"].cast(IntegerType()))
-
+        df = df.withColumn("upvotes", when(col("upvotes").isNull(), 0).when((col("upvotes") >= 0) & (col("upvotes") <= 1000), 1).when((col("upvotes") > 1000) & (col("upvotes") <= 2000), 2)\
+                            .when((col("upvotes") > 2000) & (col("upvotes") <= 3000), 3).when((col("upvotes") > 3000) & (col("upvotes") <= 4000), 4)\
+                            .when((col("upvotes") > 4000) & (col("upvotes") <= 5000), 5).when((col("upvotes") > 5000) & (col("upvotes") <= 6000), 6)\
+                            .when((col("upvotes") > 6000) & (col("upvotes") <= 7000), 7).when((col("upvotes") > 7000) & (col("upvotes") <= 8000), 8)\
+                            .when((col("upvotes") > 8000) & (col("upvotes") <= 9000), 9).when((col("upvotes") > 9000) & (col("upvotes") <= 10000), 10)\
+                            .when((col("upvotes") > 10000) & (col("upvotes") <= 11000), 11).when((col("upvotes") > 11000) & (col("upvotes") <= 12000), 12)\
+                            .when((col("upvotes") > 12000), 13))
         return df

@@ -1,23 +1,5 @@
-from preprocess import *
-from pyspark.ml.classification import RandomForestClassifier
-from pyspark.sql.functions import col, when, concat_ws
-from pyspark.ml.feature import StringIndexer, VectorAssembler
-from pyspark.ml.regression import LinearRegression
-import pandas as pd
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-from sklearn import datasets, linear_model
-from sklearn.metrics import mean_squared_error, r2_score
-from pyspark.sql.functions import udf
-from pyspark.sql.types import StringType
-from sklearn import datasets, linear_model
-from sklearn.ensemble import RandomForestRegressor
-from pyspark.mllib.evaluation import MulticlassMetrics, RegressionMetrics
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator, RegressionEvaluator
-from sklearn import metrics
-import numpy as np
-
 from mlPrep import *
+from optimizedModels import *
 
 def linear_regression_scikit(parlerDataDirectory):
     train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
@@ -81,6 +63,7 @@ def random_forest_spark(parlerDataDirectory):
 
     rf = RandomForestClassifier(labelCol="label", featuresCol="features")
     rf_model = rf.fit(df)
+    print(rf_model.featureImportances)
     predictions = rf_model.transform(test)
     predictions.show()
 
@@ -106,11 +89,9 @@ def rf_spark_to_csv(predictions):
 
 # gridsearch_rf_scikit(parlerDataDirectory)
 ## WORKING
-# predictions = random_forest_spark(parlerDataDirectory)
-# random_forest_spark_metrics(predictions)
 
-# lr_model, pred = linear_regression_spark(parlerDataDirectory)
-# linear_regression_spark_metrics(lr_model, pred)
+
+
 
 # HERE
 # train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
@@ -129,3 +110,40 @@ def rf_spark_to_csv(predictions):
 # train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
 # val_y_pred, val_comparison, test_y_pred = gridsearch_random_forest_scikit(parlerDataDirectory)
 # scikit_metrics(test_y, test_y_pred)
+
+
+# Accuracy: 0.90
+# RMSE: 1.78
+# Time: 1:57
+# train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
+# val_y_pred, val_comparison, test_y_pred = random_forest_scikit(parlerDataDirectory)
+# sci_rf_acc, sci_rf_rmse = scikit_metrics(test_y, test_y_pred)
+
+# Accuracy: 0
+# 1.71
+# Time: 1:52
+# train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
+# model, val_y_pred, val_comparison, test_y_pred, test_comparison = linear_regression_scikit(parlerDataDirectory)
+# sci_lr_acc, sci_lr_rmse = scikit_metrics(test_y, test_y_pred)
+
+# Accuracy: 0.91
+# RMSE 0.62
+# Time: 5:04
+# predictions = random_forest_spark(parlerDataDirectory)
+# spark_rf_acc, spark_rf_rmse = random_forest_spark_metrics(predictions)
+
+# 0.0
+# 0.91
+# Time: 4:27
+# lr_model, pred = linear_regression_spark(parlerDataDirectory)
+# spark_lr_acc, spark_lr_rmse = linear_regression_spark_metrics(lr_model, pred)
+# plot_accuracy(["Spark RF", "Spark LR", "Sci RF", "Sci LR"], [10, 10, 10, spark_lr_acc])
+# plot_rmse(["Spark RF", "Spark LR", "Sci RF", "Sci LR"], [10, 10, 10, spark_lr_rmse])
+
+# plot_accuracy(["Spark RF", "Spark LR", "Sci RF", "Sci LR"], [0.91, 0.0, 0.90, 0])
+# plot_rmse(["Spark RF", "Spark LR", "Sci RF", "Sci LR"], [0.62, 0.91, 1.78, 1.71])
+
+# plot_accuracy(["Spark RF", "Spark LR", "Sci RF", "Sci LR"], [spark_rf_acc, spark_lr_acc, sci_rf_acc, sci_lr_acc])
+# plot_rmse(["Spark RF", "Spark LR", "Sci RF", "Sci LR"], [spark_rf_rmse, spark_lr_rmse, sci_rf_rmse, sci_lr_rmse])
+
+plot_time(["Spark GridSearch RF", "Sci GridSearch RF", "Spark RF", "Sci RF", "Spark LR", "Sci LR"], [10.08, 2.45, 5.04, 1.57, 4.27, 1.52])

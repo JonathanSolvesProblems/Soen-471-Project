@@ -24,7 +24,7 @@ def main():
 '''
     print(printArt)
     
-    upvoteBins = 4
+    upvoteBins = 20
     # exception for testing, move to more appropriate place later.
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
@@ -32,8 +32,8 @@ def main():
     
     # preprocessor.reprocessed_data()
 
-    # plotUpvotes(preprocessor.getPreprocessedData(), upvoteBins)
-    # plotUpvotes(preprocessor.getProcessedData(), upvoteBins)
+    plotUpvotes(preprocessor.getPreprocessedData(), upvoteBins)
+    plotUpvotes(preprocessor.getProcessedData(), upvoteBins)
 
 
 def preprocess():
