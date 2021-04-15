@@ -52,3 +52,10 @@ def plot_time(Models, Time):
     plt.xlabel('Model')
     plt.ylabel('Time')
     plt.show()
+
+def visualize_linear_regression_scikit(test_x, test_y, predictions):
+    plt.scatter(test_x, test_y, color='black')
+    plt.plot(predictions, color='blue', linewidth=3)
+    plt.xticks(())
+    plt.yticks(())
+    plt.show()

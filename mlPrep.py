@@ -18,9 +18,9 @@ from sklearn import metrics
 import numpy as np
 from plot import *
 from metrics import *
-
+# parler_data000000000037.ndjson
 parlerDataDirectory = './parler_data000000000037.ndjson/'
-outputFileDirectory = './preprocessed/'
+outputFileDirectory = './preprocessed/' 
 outputJson = './parler-data/'
 
 #SPARK MODELS
