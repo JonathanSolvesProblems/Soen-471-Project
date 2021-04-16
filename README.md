@@ -51,14 +51,14 @@ In implementing Pyspark ML models, we found that the runtimes were significantly
 #### Scikit-Learn
 
 <p float="left">
-  <a href="charts/SciNormalFeatures.png"><img src="charts/SciNormalFeatures.png" width="500" /></a>
-  <a href="charts/SciGridSearchFeatures.png"><img src="charts/SciGridSearchFeatures.png" width="500"/></a>
+  <a href="charts/SciNormalFeatures.png"><img src="charts/SciNormalFeatures.png" width="300" /></a>
+  <a href="charts/SciGridSearchFeatures.png"><img src="charts/SciGridSearchFeatures.png" width="300"/></a>
 </p>
 
 #### Spark
 <p float="left">
   <a href="charts/SparkNormalFeatures.png"><img src="charts/SparkNormalFeatures.png" width="500" /></a>
-  <a href="charts/SparkGridFeatures.png"><img src="charts/SparkGridFeatures.png" width="500"/></a>
+  <a href="charts/SparkGridFeatures.png"><img src="charts/SparkGridFeatures.png" width="250"/></a>
 </p>
 
 ### Accuracy and RMSE
