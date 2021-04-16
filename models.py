@@ -3,16 +3,10 @@ from optimizedModels import *
 from pyspark.ml.regression import RandomForestRegressor as spark_RFRegressor
 
 def linear_regression_scikit(parlerDataDirectory):
-    train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
+    train_x, train_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
 
     model = linear_model.LinearRegression()
     model.fit(train_x, train_y)
-
-    # Make predictions using the validation set
-    val_y_pred = model.predict(val_x)
-    val_y_pred = pd.DataFrame(val_y_pred, columns=['val_predicted_upvotes'])
-    val_comparison = val_y_pred.join(val_y)
-    print(val_comparison)
 
     # Make predictions using the test set
     test_y_pred = model.predict(test_x)
@@ -22,31 +16,43 @@ def linear_regression_scikit(parlerDataDirectory):
 
     test_y_pred.to_csv("test.csv", index = False, header = True)
 
-    return model, val_y_pred, val_comparison, test_y_pred, test_comparison
+    return model, test_y_pred, test_comparison
+
+def linear_regression_spark(parlerDataDirectory):
+    df = prep_data_spark(parlerDataDirectory)
+    train, val, test = df.randomSplit([0.6, 0.2, 0.2])
+
+    lr = LinearRegression(featuresCol='features', labelCol='label', maxIter=10, regParam=0.3, elasticNetParam=0.8)
+    lr_model = lr.fit(train)
+    print("Coefficients: " + str(lr_model.coefficients))
+    print("Intercept: " + str(lr_model.intercept))
+
+    predictions = lr_model.transform(test)
+    predictions.show()
+
+    convert_array_to_string_udf = udf(convert_array_to_string, StringType())
+    predictions = predictions.withColumn("features", convert_array_to_string_udf(predictions["features"]))
+    predictions.coalesce(1).write.format("csv").save(outputJson, header = True)
+
+    return lr_model, predictions
 
 # Parameters to consider: n_estimators, criterion, max_depth, min_samples_split
 def random_forest_scikit(parlerDataDirectory):
-    train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
-    print("******************************", train_x)
-    print("******************************", train_y)
+    train_x, train_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
+    # print("******************************", train_x)
+    # print("******************************", train_y)
 
     rf = RandomForestRegressor()
     rf.fit(train_x, train_y)
-
-    val_y_pred = rf.predict(val_x)
-    val_y_pred = pd.DataFrame(val_y_pred, columns=['val_predicted_upvotes'])
-    val_comparison = val_y_pred.join(val_y)
-    print(val_comparison)
 
     # Make predictions using the test set
     test_y_pred = rf.predict(test_x)
     # test_y_pred_not_join = test_y_pred
     test_y_pred = pd.DataFrame(test_y_pred, columns=['test_predicted_upvotes']) 
     # test_comparison = test_y_pred.join(test_y, on = 'upvotes')
-    # print(val_comparison)
     # print(test_y_pred)
     
-    print(outputJson)
+    # print(outputJson)
     test_y_pred.to_csv("test.csv", index = False, header = True)
 
     feature_list = ['comments', 'followers', 'following', 'impressions', 'reposts', 'verified', 'categoryIndexMimeType',
@@ -64,14 +70,14 @@ def random_forest_scikit(parlerDataDirectory):
     plt.title('Feature Importances')
     plt.show()
 
-    return val_y_pred, val_comparison, test_y_pred
+    return test_y_pred
 
 def random_forest_spark(parlerDataDirectory):
 
     df = prep_data_spark(parlerDataDirectory)
 
     df.show()
-    train, val, test = df.randomSplit([0.6, 0.2, 0.2])
+    train, test = df.randomSplit([0.8, 0.2])
 
     #featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(df)
 
@@ -86,7 +92,7 @@ def random_forest_spark(parlerDataDirectory):
     feature_list = ['comments', 'followers', 'following', 'impressions', 'reposts', 'verified', 'categoryIndexMimeType',
                     'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance']
 
-    print("importace*****", importances)
+    #print("importace*****", importances)
     x_values = list(range(len(importances)))
     plt.bar(x_values, importances, orientation='vertical')
     plt.xticks(x_values, feature_list, rotation=40)
@@ -151,9 +157,9 @@ def get_features_scikit(model):
 # get_features_scikit(model)
 
 
-train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
-model, val_y_pred, val_comparison, test_y_pred, test_comparison = linear_regression_scikit(parlerDataDirectory)
-visualize_linear_regression_scikit(test_x, test_y, test_y_pred)
+# train_x, train_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
+# model, test_y_pred, test_comparison = linear_regression_scikit(parlerDataDirectory)
+# visualize_linear_regression_scikit(test_x, test_y, test_y_pred)
 
 # linear_regression_spark(parlerDataDirectory)
 # random_forest_spark(parlerDataDirectory)

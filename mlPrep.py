@@ -28,14 +28,9 @@ def prep_data_spark(parlerDataDirectory):
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
     df = preprocessor.getProcessedData()
-    # df = df.drop('body', 'createdAtformatted')
-    # spark = init_spark()
-    # df = spark.read.csv(parlerDataDirectory, header=True)
     df.show()
-    # df.where(col("upvotes").isNull()).show()
-    # df = df.filter(df.upvotes.isNotNull())
     df = df.dropna()
-    # df = df.na.drop()
+
     df = df.withColumn("comments", col("comments").cast(FloatType())).\
         withColumn("followers", col("followers").cast(FloatType())).\
         withColumn("following", col("following").cast(FloatType())).\
@@ -59,41 +54,27 @@ def prep_data_spark(parlerDataDirectory):
     output = assembler.transform(indexed)
     output.show()
 
-    # stages = [indexer]
-    # stages += [assembler]
-    # cols = df.columns
-    # pipeline = Pipeline(stages=stages)
-    # pipelineModel = pipeline.fit(df)
-    # df = pipelineModel.transform(df)
-    # selectedCols = ['label', 'features'] + cols
-    # df = df.select(selectedCols)
     return output
 
 def prep_data_scikit(parlerDataDirectory):
-    # df = pd.read_csv('part-00000-fe953ba9-c2ae-401a-bf98-58cbafc0ddcc-c000.csv')
-    # df = df.drop('body')
+
     preprocessor = Preprocess(parlerDataDirectory, outputFileDirectory, outputJson)
     preprocessor.preprocessJson(parlerDataDirectory)
     df = preprocessor.getProcessedData().toPandas()
-    # df = df.dropna(subset = ["upvotes"]) ``
     df = df.dropna() # may be removing more than we want
 
     # df.show()
-    train, val = train_test_split(df, test_size=0.3)
-    train, test = train_test_split(train, test_size=0.1)
+    train, test = train_test_split(df, test_size=0.3)
 
     # Split the data into x and y
     train_x = train[
         ['comments', 'followers', 'following', 'impressions', 'reposts', 'verified', 'categoryIndexMimeType',
          'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance']]
     train_y = train['upvotes']
-    val_x = val[['comments', 'followers', 'following', 'impressions', 'reposts', 'verified', 'categoryIndexMimeType',
-                 'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance']]
-    val_y = val['upvotes']
     test_x = test[['comments', 'followers', 'following', 'impressions', 'reposts', 'verified', 'categoryIndexMimeType',
                    'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance']]
     test_y = test['upvotes']
-    return train_x, train_y, val_x, val_y, test_x, test_y
+    return train_x, train_y, test_x, test_y
 
 def convert_array_to_string(my_list):
         return '[' + ','.join([str(elem) for elem in my_list]) + ']'

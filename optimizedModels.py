@@ -1,4 +1,4 @@
-from mlPrep import *
+from models import *
 from pyspark.ml.regression import RandomForestRegressor as spark_RFRegressor
 from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 from sklearn.model_selection import RandomizedSearchCV
@@ -9,7 +9,6 @@ def gridsearch_rf_spark(parlerDataDirectory):
     df = prep_data_spark(parlerDataDirectory)
 
     rf = spark_RFRegressor(labelCol="label", featuresCol="features")
-    #pipeline = Pipeline(stages=[df, rf])
 
     paramGrid = ParamGridBuilder() \
         .addGrid(rf.maxDepth, [2, 5, 10, 15, 20])\
@@ -30,7 +29,7 @@ def gridsearch_rf_spark(parlerDataDirectory):
                     'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance']
     importances = cvModel.bestModel.featureImportances
 
-    print("importace*****", importances)
+    #print("importace*****", importances)
     x_values = list(range(len(importances)))
     plt.bar(x_values, importances, orientation='vertical')
     plt.xticks(x_values, feature_list, rotation=40)
@@ -43,13 +42,7 @@ def gridsearch_rf_spark(parlerDataDirectory):
 
 # 2:45
 def gridsearch_rf_scikit(parlerDataDirectory):
-    # parameters = {"max_depth": [3, 5, 10, ],
-    #               "max_features": [1, 3, 5, 10],
-    #               "min_samples_split": [1, 3, 10],
-    #               "min_samples_leaf": [1, 3, 10],
-    #               "bootstrap": [True, False],
-    #               "criterion": ["gini", "entropy"],
-    #               "n_estimators": [10, 50, 100, 200]}
+
     # Run RandomizedSearchCV to tune the hyper-parameter
     train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
 
@@ -64,8 +57,7 @@ def gridsearch_rf_scikit(parlerDataDirectory):
                     'categoryIndexDomains', 'sentiment_score', 'hashtag significance', 'body significance']
 
     importances = random.best_estimator_.feature_importances_
-    # importances = random.feature_importances_
-    print("**************", importances)
+    #print("**************", importances)
     x_values = list(range(len(importances)))
     plt.bar(x_values, importances, orientation='vertical')
     plt.xticks(x_values, feature_list, rotation=40)
@@ -77,27 +69,8 @@ def gridsearch_rf_scikit(parlerDataDirectory):
     return random.best_params_
 
 
-def linear_regression_spark(parlerDataDirectory):
-    df = prep_data_spark(parlerDataDirectory)
-    train, val, test = df.randomSplit([0.6, 0.2, 0.2])
-
-    lr = LinearRegression(featuresCol='features', labelCol='label', maxIter=10, regParam=0.3, elasticNetParam=0.8)
-    lr_model = lr.fit(train)
-    print("Coefficients: " + str(lr_model.coefficients))
-    print("Intercept: " + str(lr_model.intercept))
-
-    predictions = lr_model.transform(test)
-    predictions.show()
-
-    convert_array_to_string_udf = udf(convert_array_to_string, StringType())
-    predictions = predictions.withColumn("features", convert_array_to_string_udf(predictions["features"]))
-    predictions.coalesce(1).write.format("csv").save(outputJson, header = True)
-
-    return lr_model, predictions
-
 # gridsearch_rf_scikit(parlerDataDirectory)
 # gridsearch_rf_spark(parlerDataDirectory)
-# gridsearch_lg_spark(parlerDataDirectory)
 # train_x, train_y, val_x, val_y, test_x, test_y = prep_data_scikit(parlerDataDirectory)
 # model, val_y_pred, val_comparison, test_y_pred, test_comparison = linear_regression_scikit(parlerDataDirectory)
 # scikit_metrics(test_y, test_y_pred)
