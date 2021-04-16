@@ -45,15 +45,14 @@ In implementing Pyspark ML models, we found that the runtimes were significantly
 
 ### Best Features
 
-#### Scikit-Learn
-
+#### Scikit-Learn: Normal and GridSearch respectively
 
 <p float="left" align="center">
   <a href="charts/SciNormalFeatures.png"><img src="charts/SciNormalFeatures.png" width="300" /></a>
   <a href="charts/SciGridSearchFeatures.png"><img src="charts/SciGridSearchFeatures.png" width="300"/></a>
 </p>
 
-#### Spark
+#### Spark: Normal and GridSearch respectively
 <p float="left" align="center">
   <a href="charts/SparkNormalFeatures.png"><img src="charts/SparkNormalFeatures.png" width="300" /></a>
   <a href="charts/SparkGridFeatures.png"><img src="charts/SparkGridFeatures.png" width="300"/></a>
@@ -63,7 +62,7 @@ In implementing Pyspark ML models, we found that the runtimes were significantly
 
 <p float="left" align="center">
   <a href="charts/accuracyEachModel.png"><img src="charts/accuracyEachModel.png" width="300" /></a>
-  <a href="charts/rmseEachModel.png"><img src="charts/rmseEachModel.png" width="304"/></a>
+  <a href="charts/rmseEachModel.png"><img src="charts/rmseEachModel.png" width="302.9"/></a>
 </p>
 
 ### Time Taken by Each Model
