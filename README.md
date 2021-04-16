@@ -30,12 +30,9 @@ In order to achieve our objective, we need a dataset that has a high percentage 
 
 In brief, we intend to determine first and foremost, the better model between linear regression and random forest and second of all, we want to determine which features are most salient and how best to process our textual data.
 
+#### Magic Processing
 <p align="center">
   <img src="https://cdn.discordapp.com/attachments/798968469785018388/832082552877219901/yummy.gif" alt="animated" />
-</p>
-
-<p align="center">
-  Tools
 </p>
 
 # Results
