@@ -21,9 +21,9 @@ The dataset of Parler users has been obtained from the free open source website 
 
 ### Upvote Distribution Before and After
 
-<p float="left">
-  <a href="charts/preprocessingBefore.png"><img src="charts/preprocessingBefore.png" width="500" /></a>
-  <a href="charts/preprocessingBefore.png"><img src="charts/preprocessingAfter.png" width="503"/></a>
+<p float="left" align="center">
+  <a href="charts/preprocessingBefore.png"><img src="charts/preprocessingBefore.png" width="300" /></a>
+  <a href="charts/preprocessingBefore.png"><img src="charts/preprocessingAfter.png" width="303"/></a>
 </p>
 
 In order to achieve our objective, we need a dataset that has a high percentage of popular posts, but also has a decent range of posts with various ranges of popularity. To this end, we want our data distribution to resemble a bell curve and will be using the goodness of fit algorithm to select the best subsample possible from the raw Parler data. Further preprocessing is still tentative, but involves removal of partially empty or erroneous rows (some comment tallies amount to -1, which bears no meaning to us). For simplicity, only comments in English will be classified within our dataset initially. We may revisit them later on within our project to see if we can take our model further and use those foreign comments in an interesting way. Finally, another factor in our model’s performance that we intend to analyze is the effect of word frequency vs word embedding in regards to the processing of the Parler post’s content.
@@ -50,27 +50,28 @@ In implementing Pyspark ML models, we found that the runtimes were significantly
 
 #### Scikit-Learn
 
-<p float="left">
+
+<p float="left" align="center">
   <a href="charts/SciNormalFeatures.png"><img src="charts/SciNormalFeatures.png" width="300" /></a>
   <a href="charts/SciGridSearchFeatures.png"><img src="charts/SciGridSearchFeatures.png" width="300"/></a>
 </p>
 
 #### Spark
-<p float="left">
-  <a href="charts/SparkNormalFeatures.png"><img src="charts/SparkNormalFeatures.png" width="500" /></a>
-  <a href="charts/SparkGridFeatures.png"><img src="charts/SparkGridFeatures.png" width="250"/></a>
+<p float="left" align="center">
+  <a href="charts/SparkNormalFeatures.png"><img src="charts/SparkNormalFeatures.png" width="300" /></a>
+  <a href="charts/SparkGridFeatures.png"><img src="charts/SparkGridFeatures.png" width="300"/></a>
 </p>
 
 ### Accuracy and RMSE
 
-<p float="left">
-  <a href="charts/accuracyEachModel.png"><img src="charts/accuracyEachModel.png" width="500" /></a>
-  <a href="charts/rmseEachModel.png"><img src="charts/rmseEachModel.png" width="505"/></a>
+<p float="left" align="center">
+  <a href="charts/accuracyEachModel.png"><img src="charts/accuracyEachModel.png" width="300" /></a>
+  <a href="charts/rmseEachModel.png"><img src="charts/rmseEachModel.png" width="304"/></a>
 </p>
 
 ### Time Taken by Each Model
 
-<p float="left">
+<p float="left" align="center">
   <a href="charts/runTimeOfModels.png"><img src="charts/runTimeOfModels.png"/></a>
 </p>
 
