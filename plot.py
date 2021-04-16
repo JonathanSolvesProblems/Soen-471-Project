@@ -31,3 +31,31 @@ def plotUpvotes(df, bins):
     # Give ourselves some more room at the bottom of the plot
     plt.subplots_adjust(bottom=0.15)
     plt.show()
+
+def plot_accuracy(Models, Accuracies):
+    plt.bar(Models, Accuracies)
+    plt.title('Accuracy of Each Model')
+    plt.xlabel('Model')
+    plt.ylabel('Accuracy')
+    plt.show()
+
+def plot_rmse(Models, RMSE):
+    plt.bar(Models, RMSE)
+    plt.title('RMSE of Each Model')
+    plt.xlabel('Model')
+    plt.ylabel('RMSE')
+    plt.show()
+
+def plot_time(Models, Time):
+    plt.bar(Models, Time)
+    plt.title('Time Taken to Run Each Model (in minutes)')
+    plt.xlabel('Model')
+    plt.ylabel('Time')
+    plt.show()
+
+def visualize_linear_regression_scikit(test_x, test_y, predictions):
+    plt.scatter(test_x, test_y, color='black')
+    plt.plot(predictions, color='blue', linewidth=3)
+    plt.xticks(())
+    plt.yticks(())
+    plt.show()
