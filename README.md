@@ -30,7 +30,6 @@ In order to achieve our objective, we need a dataset that has a high percentage 
 
 In brief, we intend to determine first and foremost, the better model between linear regression and random forest and second of all, we want to determine which features are most salient and how best to process our textual data.
 
-#### Magic Processing
 <p align="center">
   <img src="https://cdn.discordapp.com/attachments/798968469785018388/832082552877219901/yummy.gif" alt="animated" />
 </p>
@@ -65,7 +64,7 @@ In implementing Pyspark ML models, we found that the runtimes were significantly
   <a href="charts/rmseEachModel.png"><img src="charts/rmseEachModel.png" width="302.9"/></a>
 </p>
 
-### Time Taken by Each Model
+### Runtime of Each Model
 
 <p float="left" align="center">
   <a href="charts/runTimeOfModels.png"><img src="charts/runTimeOfModels.png"/></a>
